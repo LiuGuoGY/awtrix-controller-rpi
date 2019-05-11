@@ -11,7 +11,7 @@
 #include <arpa/inet.h> 
 #include "awtrix-conf.h"
 
-void error(char *msg) {
+void error(char const * msg) {
   perror(msg);
   exit(0);
 }
@@ -21,7 +21,8 @@ int main(int argc, char *argv[])
   int sockfd = 0, portno = 0;
   struct sockaddr_in serv_addr;
   struct hostent *server;
-  char buffer[256];
+  char buffer[256] = "hahahahhaha\0", temp = 0;
+  int n = 0;
 
   wiringPiSetup();
   // pinMode(0,OUTPUT);
@@ -30,13 +31,13 @@ int main(int argc, char *argv[])
   //   fprintf(stderr,"usage %s hostname port\n", argv[0]);
   //   exit(0);
   // }
-  portno = atoi("7001");
+  portno = 41152; //7001
   sockfd = socket(AF_INET, SOCK_STREAM, 0);
   if (sockfd < 0) 
     error("ERROR opening socket");
-  server = gethostbyname("127.0.0.1");
+  server = gethostbyname("139.199.153.158"); //127.0.0.1
   if (server == NULL) {
-    fprintf(stderr,"ERROR, no such host\n");
+    error("ERROR, no such host\n");
     exit(0);
   }
   bzero((char *) &serv_addr, sizeof(serv_addr));
@@ -45,15 +46,15 @@ int main(int argc, char *argv[])
   serv_addr.sin_port = htons(portno);
   if (connect(sockfd,(struct sockaddr *) &serv_addr, sizeof(serv_addr)) < 0) 
     error("ERROR connecting");
-  // if ((sockfd = socket(AF_INET, SOCK_STREAM, 0)) < 0)
-  // {
-  //   error(const_cast<char *>("ERROR opening socket"));
-  // }
-  // if ((server = gethostbyname( "127.0.0.1" )) == NULL)
-  // {
-  //   error(const_cast<char *>("ERROR, no such host\n"));
-  // }
-  // while(1)
+  // bzero(buffer, 256);// reset to zero
+  n = write(sockfd,buffer,strlen(buffer));
+  if (n < 0) 
+    error("ERROR writing to socket");
+  printf("tap any key to close\n");
+  scanf("%c", &temp);
+  close(sockfd);
+
+// while(1)
   // {
   //   digitalWrite(0,HIGH);delay(500);
   //   digitalWrite(0,LOW);delay(500);
